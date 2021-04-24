@@ -5,6 +5,24 @@ from urllib.request import Request, urlopen # urlopen: 웹 url 연결을 시도�
 import json
 import os
 
+# 0424 새로 추가한 코드(마스크 이미지 다운로드)
+def image_download(url, filepath):
+    #요청을 보내서 데이터를 받아오기
+    request = Request(url)
+    response = urlopen(request)
+    image_data = response.read()
+    file = open(filepath, 'wb') # 바이너리로 쓰기
+    file.write(image_data)
+    file.close()
+    print(url + '로부터' + filepath + '에 다운로드 완료')
+
+# 마스크 다운로드 url
+mask_url = 'https://github.com/prajnasb/observations/raw/master/mask_classifier/Data_Generator/images/blue-mask.png'
+image_download(mask_url, 'data/mask.png')
+exit() # 아래꺼 수행되지 않도록
+
+#-----------------------------------------------------------------------------------------------------------------------
+
 save_folder = 'data/without_mask/' #여기에 전부 저장한다.
 #url-어디로 요청을 보낼건지
 api_url = 'https://api.github.com/repos/prajnasb/observations/contents/experiements/data/without_mask?ref=master'
@@ -33,6 +51,7 @@ for i in range(len(contents)):      #i가 contents의 길이만큼 뽑아와서 
     file.write(data)
     print('다운로드 완료(' + str(i+1) +'/' + str(len(contents)) + '): ' + content['name'])
     #다운로드 완료(30/500): 30.jpeg
+    break   #하나만 받음
 
 
 
