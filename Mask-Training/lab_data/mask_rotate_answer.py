@@ -3,8 +3,10 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 #face_image_path = 'data/without_mask/255.jpg'
-face_image_path = 'data/without_mask/augmented_image_143.jpg'
-mask_image_path = 'data/mask.png'
+#face_image_path = '../data/without_mask/augmented_image_37.jpg'
+face_image_path = '../data/without_mask/255.jpg'
+
+mask_image_path = '../data/mask.png'
 
 face_image_np = face_recognition.load_image_file(face_image_path)
 face_locations = face_recognition.face_locations(face_image_np)
@@ -15,7 +17,10 @@ draw = ImageDraw.Draw(face_landmark_image)
 mask_image = Image.open(mask_image_path)
 
 for face_landmark in face_landmarks:
+
     nb = face_landmark['nose_bridge']
+    mask_image = mask_image.resize((face_landmark['chin'][16][0] - face_landmark['chin'][0][0],
+                                    face_landmark['chin'][7][1] - nb[0][1]))  # 사이즈 변경
     nb_top = nb[0]
     nb_bottom = nb[3]
     dx = nb_bottom[0] - nb_top[0]
@@ -26,9 +31,12 @@ for face_landmark in face_landmarks:
 
     mask_degree = 90 - face_degree
 
-    mask_image = mask_image.resize((80, 50))
+    #mask_image = mask_image.resize((80, 50))
+
     mask_image = mask_image.rotate(mask_degree)
 
-    face_landmark_image.paste(mask_image, (0, 0), mask_image)
+    face_landmark_image.paste(mask_image, (face_landmark['chin'][0][0], face_landmark['nose_bridge'][0][1]),
+                              mask_image)
+    #face_landmark_image.paste(mask_image, (0, 0), mask_image)
 
 face_landmark_image.show()

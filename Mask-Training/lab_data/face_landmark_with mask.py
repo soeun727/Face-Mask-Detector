@@ -5,11 +5,11 @@ from PIL import Image, ImageDraw
 import math
 import numpy as np
 
-face_image_path = 'data/without_mask/augmented_image_200.jpg'
-#face_image_path = 'data/without_mask/255.jpg'
-#face_image_path = 'data/without_mask/augmented_image_100.jpg'
+face_image_path = '../data/without_mask/augmented_image_37.jpg'
+#face_image_path = '../data/without_mask/255.jpg'
+#face_image_path = 'data/without_mask/augmented_image_157.jpg'
 #face_image_path = 'BTS.jpg'
-mask_image_path = 'data/mask.png'
+mask_image_path = '../data/mask.png'
 
 face_image_np = face_recognition.load_image_file(face_image_path)
 face_locations = face_recognition.face_locations(face_image_np) # face_recognition에서 자동으로 이미지의 배열정보를 뽑아주는거임
@@ -27,8 +27,6 @@ for face_location in face_locations: # 각 얼굴 위치([(46, 114, 108, 52)])�
     bottom = face_location[2]   #108
     left = face_location[3]     #52
 print(top, bottom, right, left)
-center = bottom-right//2
-draw.line((left, top), fill=128)
 
 for face_landmark in face_landmarks:
     mask_image = mask_image.resize((face_landmark['chin'][16][0] - face_landmark['chin'][0][0],

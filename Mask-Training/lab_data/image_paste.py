@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 
 #이미지 열어주기
 image_path = 'actor.jpg'
-mask_image_path = 'data/mask.png'
+mask_image_path = '../data/mask.png'
 
 face_image_np = face_recognition.load_image_file(image_path) # 이미지를 일단 불러오기만,,
 face_locations = face_recognition.face_locations(face_image_np, model='hog')

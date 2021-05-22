@@ -18,7 +18,7 @@ def image_download(url, filepath):
 
 # 마스크 다운로드 url
 mask_url = 'https://github.com/prajnasb/observations/raw/master/mask_classifier/Data_Generator/images/blue-mask.png'
-image_download(mask_url, 'data/mask.png')
+image_download(mask_url, '../data/mask.png')
 exit() # 아래꺼 수행되지 않도록
 
 #-----------------------------------------------------------------------------------------------------------------------
@@ -41,10 +41,10 @@ for i in range(len(contents)):      #i가 contents의 길이만큼 뽑아와서 
     data=response.read()    #데이터 읽어서 data에 저장
 
     #경로 지정
-    if not os.path.exists('data'):  #만약 data 폴더가 없다면,
-        os.mkdir('data')    #data 폴더를 만들어라
-    if not os.path.exists('data/without_mask'):
-        os.mkdir('data/without_mask')
+    if not os.path.exists('../data'):  #만약 data 폴더가 없다면,
+        os.mkdir('../data')    #data 폴더를 만들어라
+    if not os.path.exists('../data/without_mask'):
+        os.mkdir('../data/without_mask')
 
     #쓰기 모드로 저장
     file=open(save_folder + content['name'], 'wb') #바이너리 모드로 쓰겠다
