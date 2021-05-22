@@ -3,7 +3,7 @@ import face_recognition
 from PIL import Image, ImageDraw
 
 #이미지 열어주기
-image_path = 'data/without_mask/90.jpg'
+image_path = 'actor.jpg'
 mask_image_path = 'data/mask.png'
 
 face_image_np = face_recognition.load_image_file(image_path) # 이미지를 일단 불러오기만,,
@@ -16,7 +16,7 @@ for face_location in face_locations: # 각 얼굴 위치([(46, 114, 108, 52)])�
     right = face_location[1]    #114
     bottom = face_location[2]   #108
     left = face_location[3]     #52
-print(top,bottom,right,left)
+print(top, bottom, right, left)
 # 마스크 이미지 불러오기
 mask_image = Image.open(mask_image_path) # 경로에서 불러오기
 
@@ -25,7 +25,7 @@ mask_image = Image.open(mask_image_path) # 경로에서 불러오기
 # print(type(mask_image)) # <class 'PIL.PngImagePlugin.PngImageFile'> -> pngimagefile로 불러와짐
 
 a=int(((right+left)//2)-(right-left)//2)
-b=int(bottom*(3/4))
+b=int(bottom*(2.5/4))
 print(a, b)
 #마스크 이미지 resize
 num1=right-left

@@ -1,8 +1,8 @@
 import face_recognition
 from PIL import Image, ImageDraw
 #face_recognition에서 특정 경로의 이미지를 불러와야됨
-image_path = 'data/without_mask/104.jpg'
-#image_path = 'actor.jpg'
+image_path = 'data/without_mask/105.jpg'
+# image_path = 'actor.jpg'
 #face_image = face_recognition.load_image_file(image_path)
 
 #face_image로 얼굴위치 검출, hog는 얼굴인식을 담당하는 학습된 인공지능 모델 중 하나(Object Tracking에 많이 사용되는 Feature 중 하나)
@@ -17,9 +17,9 @@ face_locations = face_recognition.face_locations(face_image_np, model='hog') #to
 #이미지의 배열정보를 이용해서 이미지 생성
 face_image = Image.fromarray(face_image_np)     #넘파이로 불러와서
 #원본 이미지에 표시, face image를 그리기 위한 기능을 연결시켜줌
-draw = ImageDraw.Draw(face_image)                 #이미지로 변환
+draw = ImageDraw.Draw(face_image) #이미지로 변환
 
-#얼굴 영역에 마스크 합성
+#얼굴 위치
 for face_location in face_locations: # 각 얼굴 위치([(46, 114, 108, 52)])들이 face location 안에 들어감
     top = face_location[0]  #46
     right = face_location[1]    #114
@@ -31,3 +31,5 @@ for face_location in face_locations: # 각 얼굴 위치([(46, 114, 108, 52)])�
     # 원 그리기
     # draw.ellipse(((left, top), (right, bottom)), outline=(255,9,220), width=8)
 face_image.show()
+
+
