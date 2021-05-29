@@ -9,13 +9,13 @@ import face_recognition
 from PIL import Image, ImageDraw
 import numpy as np
 
-# 다운로드 기능(without_mast, with_mask, mask)
+# 다운로드 기능(without_mask, with_mask, mask)
 def download_image(kind):
     if kind == 'without_mask':
         api_url = 'https://api.github.com/repos/prajnasb/observations/contents/experiements/data/without_mask?ref=master' # json 형식
-        headers = {'User-Agent': 'Mozilla/5.0'}
+        hds = {'User-Agent': 'Mozilla/5.0'}
 
-        request = Request(api_url, headers=headers)  # 요청 보냄
+        request = Request(api_url, headers=hds)  # 요청 보냄
         response = urlopen(request)
         directory_bytes = response.read()
         directory_str = directory_bytes.decode('utf-8')
@@ -41,9 +41,9 @@ def download_image(kind):
 
     elif kind == 'with_mask':
         api_url = 'https://api.github.com/repos/prajnasb/observations/contents/experiements/data/with_mask?ref=master'  # json 형식
-        headers = {'User-Agent': 'Mozilla/5.0'}
+        hds = {'User-Agent': 'Mozilla/5.0'}
 
-        request = Request(api_url, headers=headers)  # 요청 보냄
+        request = Request(api_url, headers=hds)  # 요청 보냄
         response = urlopen(request)
         directory_bytes = response.read()
         directory_str = directory_bytes.decode('utf-8')
@@ -58,14 +58,14 @@ def download_image(kind):
 
             if not os.path.exists('data'):
                 os.mkdir('data')
-            if not os.path.exists('data/with_mask'):
-                os.mkdir('data/with_mask')
+            if not os.path.exists('data/without_mask'):
+                os.mkdir('data/without_mask')
 
-            image_file = open('data/with_mask/' + content['name'], 'wb')  # binary로 write하겠다
+            image_file = open('data/without_mask/' + content['name'], 'wb')  # binary로 write하겠다
             image_file.write(image_data)
             image_file.close()
-            print('with_mask 이미지 다운로드 중(' + str(i + 1) + '/' + str(len(contents)) + '): ' + content['name'])
-        print('with_mask 이미지 다운로드 완료')
+            print('without_mask 이미지 다운로드 중(' + str(i + 1) + '/' + str(len(contents)) + '): ' + content['name'])
+        print('without_mask 이미지 다운로드 완료')
     elif kind == 'mask':
         mask_image_download_url = 'https://github.com/prajnasb/observations/raw/master/mask_classifier/Data_Generator/images/blue-mask.png'
 
@@ -78,6 +78,7 @@ def download_image(kind):
 
         image_file = open('data/mask.png', 'wb')
         image_file.write(image_data)
+        image_file.close()
         print('mask 이미지 다운로드 완료')
 
 # 점과 점사이의 거리
@@ -131,10 +132,10 @@ def mask_processing(face_image_file_name):
         mask_width_ratio = 1.2 #너비 조금 키움
 
         # 마스크 높이 계산(nose_bridge 2번째 점, chin 9번째 점의 길이)
-        mask_height = int(distance_point_to_point(face_landmark['nose_bridge'][1],face_landmark['chin'][8]))
+        mask_height = int(distance_point_to_point(face_landmark['nose_bridge'][1], face_landmark['chin'][8]))
 
         # 마스크 좌/우 분할 --> 얼굴이 좌우로 돌아갈때 오른쪽/왼쪽 얼굴의 거리 차이가 생기는데, 이런 것들을 맞춰주기 위함
-        mask_left_image = mask_image.crop((0,0,mask_image.width // 2, mask_image.height))
+        mask_left_image = mask_image.crop((0, 0, mask_image.width // 2, mask_image.height))
         mask_right_image = mask_image.crop((mask_image.width // 2, 0, mask_image.width, mask_image.height))
 
         #mask_left_image.show()
@@ -149,12 +150,13 @@ def mask_processing(face_image_file_name):
         # 오른쪽 얼굴 너비 계산
         mask_right_width = int(distance_point_to_line(face_landmark['chin'][16], face_landmark['nose_bridge'][0], face_landmark['chin'][8]) * mask_width_ratio)
         # 오른쪽 마스크 크기 조절
-        mask_right_image = mask_right_image.resize(mask_right_width, mask_height)
+        print(mask_right_width, mask_height)
+        mask_right_image = mask_right_image.resize((mask_right_width, mask_height)) #괄호 두개
 
         # 좌/우 마스크 연결 -> 얼굴 형태에 맞게 비대칭 형태
         mask_image = Image.new('RGBA', (mask_left_width + mask_right_width, mask_height))
         mask_image.paste(mask_left_image, (0,0), mask_left_image)
-        mask_image.paste(mask_right_image,(mask_left_image,0), mask_right_image) # 왼쪽 이미지의 너비만큼 떨어진 위치
+        mask_image.paste(mask_right_image,(mask_left_width,0), mask_right_image) # 왼쪽 이미지의 너비만큼 떨어진 위치
 
         mask_image.show()
         # 얼굴 회전 각도 계산
@@ -166,16 +168,16 @@ def mask_processing(face_image_file_name):
 
         # 마스크 회전
         mask_degree = (90-face_degree + 360) % 360
-        mask_image_rotate = mask_image.rotate(mask_degree, expand=True)
+        mask_image = mask_image.rotate(mask_degree, expand=True)
 
         # 마스크 위치 계산
         mask_radian = np.deg2rad(-mask_degree)
         center_x = (face_landmark['nose_bridge'][1][0] + face_landmark['chin'][8][0]) // 2 # 중심점 기준으로 회전해야하니까 중심점 정하기(x 좌표)
         center_y = (face_landmark['nose_bridge'][1][1] + face_landmark['chin'][8][1]) // 2 # 중심점 기준으로 회전해야하니까 중심점 정하기(y 좌표)
-        p1 = rotate_point((center_x, center_y), (center_x - mask_left_width, center_y - mask_height // 2, mask_radian))
-        p2 = rotate_point((center_x, center_y), (center_x - mask_left_width, center_y + mask_height // 2, mask_radian))
-        p3 = rotate_point((center_x, center_y), (center_x + mask_left_width, center_y - mask_height // 2, mask_radian))
-        p4 = rotate_point((center_x, center_y), (center_x + mask_left_width, center_y + mask_height // 2, mask_radian))
+        p1 = rotate_point((center_x, center_y), (center_x - mask_left_width, center_y - mask_height // 2), mask_radian)
+        p2 = rotate_point((center_x, center_y), (center_x - mask_left_width, center_y + mask_height // 2), mask_radian)
+        p3 = rotate_point((center_x, center_y), (center_x + mask_left_width, center_y - mask_height // 2), mask_radian)
+        p4 = rotate_point((center_x, center_y), (center_x + mask_left_width, center_y + mask_height // 2), mask_radian)
 
         box_x = int(min(p1[0], p2[0], p3[0], p4[0]))
         box_y = int(min(p1[1], p2[1], p3[1], p4[1]))
@@ -192,15 +194,15 @@ def mask_processing(face_image_file_name):
 # 데이터 생성
 def generate_data():
     face_image_base_path = 'data/without_mask/'
-    save_path = 'data/with_mask'
+    save_path = 'data/with_mask/'
 
     face_image_file_names = os.listdir(face_image_base_path)
     for i in range(len(face_image_file_names)):
         face_image_file_name = face_image_file_names[i]
-        face_image, face_count = mask_processing(face_image)
+        face_image, face_count = mask_processing(face_image_file_name)
 
         if face_count == 0:
-            os.remove((face_image_base_path + face_image_file_name))
+            os.remove(face_image_base_path + face_image_file_name)
             print('얼굴 인식 실패(' + str(i+1) + '/' + str(len(face_image_file_names)) + '): ' + face_image_file_name)
         else:
             if not os.path.exists(save_path):
