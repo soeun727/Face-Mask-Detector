@@ -84,6 +84,7 @@ def download_image(kind):
 # 점과 점사이의 거리
 def distance_point_to_point(point1, point2):
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+    #루트 (x좌표 차이의 제곱 + y좌표 차이의 제곱)
 
 # 점과 직선 사이의 거리
 def distance_point_to_line(point, line_point1, line_point2):
